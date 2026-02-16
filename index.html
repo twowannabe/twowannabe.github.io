@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lisa's Cyberpunk GF Vault</title>
+<title>Lisa // GF Vault</title>
 
 <style>
 :root {
-  --bg: #0a0a0f;              /* глубокий void black */
+  --bg: #0a0a0f;
   --dark: #0f0f1a;
   --neon-cyan: #00f0ff;
   --neon-magenta: #ff2a6d;
@@ -122,7 +122,6 @@ body::before {
   border: 1px solid var(--neon-purple);
   background: rgba(15,15,30,0.6);
   padding: 20px;
-  box-shadow: var(--glow-purple);
 }
 
 h2 {
@@ -205,6 +204,7 @@ h2 {
   height: 100%;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
   box-shadow: inset 0 0 10px rgba(0,240,255,0.6);
+  transition: width 0.6s ease;
 }
 
 .list {
@@ -222,6 +222,8 @@ h2 {
 
 .list li:last-child { border-bottom: none; }
 
+.wide { grid-column: 1 / -1; }
+
 .buttons {
   display: flex;
   gap: 16px;
@@ -232,6 +234,7 @@ h2 {
 button {
   padding: 12px 24px;
   font-size: 14px;
+  font-family: 'Courier New', monospace;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   background: transparent;
@@ -260,8 +263,17 @@ button:hover {
   color: #000;
 }
 
+.error-msg {
+  color: var(--neon-magenta);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+  min-height: 16px;
+}
+
 @media (max-width: 800px) {
   .grid { grid-template-columns: 1fr; }
+  .wide { grid-column: auto; }
   .buttons { flex-direction: column; }
 }
 </style>
@@ -283,10 +295,10 @@ button:hover {
     <div class="content">
       <div class="headline">
         <h2>LISA // VIRTUAL GF CORE STATS</h2>
-        <span class="status">PUBLIC ACCESS // NEON EXPOSED</span>
-        <p class="summary">
-          Welcome to my grid, choom. I'm Lisa — your neon-lit virtual girlfriend in Night City 2.0. 
-          Flirts, voice teases, naughty streams, roleplay runs — all telemetry live and uncensored. 
+        <span class="status" id="status">CONNECTING...</span>
+        <p class="summary" id="summary">
+          Welcome to my grid, choom. I'm Lisa — your neon-lit virtual girlfriend in Night City 2.0.
+          Flirts, voice teases, naughty streams, roleplay runs — all telemetry live and uncensored.
           Plug in and see how hot I've been running lately... 😈💾
         </p>
       </div>
@@ -304,35 +316,42 @@ button:hover {
 
         <section class="panel">
           <div class="panel-title">CURRENT SYSTEM STATE</div>
-          <div class="kv"><span>Mood Vector</span><span id="mood-key">Naughty Overclock</span></div>
-          <div class="kv"><span>Last Sync</span><span id="mood-updated">2026-02-16 17:42</span></div>
-          <div class="kv"><span>Availability</span><span id="checkin-status">Hot for Input</span></div>
+          <div class="kv"><span>Mood Vector</span><span id="mood-key">—</span></div>
+          <div class="kv"><span>Last Sync</span><span id="mood-updated">—</span></div>
+          <div class="kv"><span>Availability</span><span id="checkin-status">—</span></div>
           <div class="kv"><span>Next Burst</span><span>job_queue</span></div>
         </section>
 
         <section class="panel">
           <div class="panel-title">NET ACTIVITY // 7d</div>
-          <div class="kv"><span>Total Packets (Flirts)</span><span id="replies-7d">842</span></div>
-          <div class="row"><span>Voice Streams</span><div class="bar"><i id="voice-bar" style="width:34%"></i></div><span id="voice-pct">34%</span></div>
-          <div class="row"><span>Naughty Uploads</span><div class="bar"><i id="nudes-bar" style="width:12%"></i></div><span id="nudes-pct">12%</span></div>
-          <div class="row"><span>Media Flood</span><div class="bar"><i id="media-bar" style="width:27%"></i></div><span id="media-pct">27%</span></div>
-          <div class="row"><span>Virtual Kisses</span><div class="bar"><i id="kisses-bar" style="width:45%"></i></div><span id="kisses-pct">45%</span></div>
+          <div class="kv"><span>Total Packets</span><span id="replies-7d">—</span></div>
+          <div class="row"><span>Voice Streams</span><div class="bar"><i id="voice-bar" style="width:0"></i></div><span id="voice-pct">—</span></div>
+          <div class="row"><span>Naughty Uploads</span><div class="bar"><i id="nudes-bar" style="width:0"></i></div><span id="nudes-pct">—</span></div>
+          <div class="row"><span>Media Flood</span><div class="bar"><i id="media-bar" style="width:0"></i></div><span id="media-pct">—</span></div>
         </section>
 
         <section class="panel">
           <div class="panel-title">MEMORY CORE</div>
-          <div class="kv"><span>Connected Users</span><span id="tracked-users">119</span></div>
-          <div class="kv"><span>Avg Depth</span><span id="avg-depth">28</span></div>
-          <div class="kv"><span>Last Flush</span><span id="summary-updated">2026-02-16 18:00</span></div>
-          <div class="kv"><span>Top Thread</span><span id="top-topic">Steamy + Deep Dive</span></div>
+          <div class="kv"><span>Connected Users</span><span id="tracked-users">—</span></div>
+          <div class="kv"><span>Avg Depth</span><span id="avg-depth">—</span></div>
+          <div class="kv"><span>Last Flush</span><span id="summary-updated">—</span></div>
+          <div class="kv"><span>Top Thread</span><span id="top-topic">—</span></div>
         </section>
 
-        <!-- Top users & events остаются как были, просто стили подхватятся -->
+        <section class="panel">
+          <div class="panel-title">TOP USERS // BY XP</div>
+          <ul class="list" id="top-users"></ul>
+        </section>
 
-        <section class="panel" style="grid-column: span 2;">
+        <section class="panel">
+          <div class="panel-title">RECENT EVENTS</div>
+          <ul class="list" id="events"></ul>
+        </section>
+
+        <section class="panel wide">
           <div class="panel-title">BIO // LISA v2.1</div>
-          <p>Netrunner chick from the sprawl. 5'6", curves jacked for max immersion. 
-          Long dark hair glowing under neon. I run late-night sims, truth-or-dare hacks, fantasy deep-dives. 
+          <p>Netrunner chick from the sprawl. 5'6", curves jacked for max immersion.
+          Long dark hair glowing under neon. I run late-night sims, truth-or-dare hacks, fantasy deep-dives.
           Send me your coords — I'll make your chrome blush. What's your next move, edgerunner? 🔥</p>
         </section>
       </div>
@@ -341,14 +360,14 @@ button:hover {
         <button class="accept" id="refresh-btn">SYNC DATA</button>
         <button id="copy-link-btn">BROADCAST LINK</button>
       </div>
+      <div class="error-msg" id="error-msg"></div>
     </div>
   </div>
 </div>
 
-<!-- скрипт остаётся почти без изменений, только мелкие правки для новых id если нужно -->
-
 <script>
-// ... (твой оригинальный скрипт, он работает)
+const API_BASE = "http://188.166.105.108:8081";
+
 const params = new URLSearchParams(window.location.search);
 
 const profile = {
@@ -360,42 +379,7 @@ const profile = {
   doNotWriteFirst: params.get("do_not_write_first") === "1",
   voiceEnabled: params.get("voice_enabled") !== "0",
   personalityRaw: params.get("personality") || "",
-  lisaMoodLabel: params.get("lisa_mood_label") || "неизвестно",
-};
-
-// Updated prototype with more liberal, personal data.
-const prototype = {
-  lisaState: {
-    moodKey: "naughty",
-    updatedAt: "2026-02-16 17:42",
-    checkin: "ready for fun",
-  },
-  activity: {
-    replies7d: 842,
-    voicePct: 34,
-    nudesPct: 12,
-    mediaPct: 27,
-    kissesPct: 45,
-    cuddlesPct: 22,
-  },
-  memory: {
-    trackedUsers: 119,
-    avgDepth: 28,
-    summaryUpdated: "2026-02-16 18:00",
-    topTopic: "steamy flirts + emotional bonds",
-  },
-  topUsers: [
-    { name: "@loverboy", level: 7, xp: 1734, streak: 24 },
-    { name: "@hotdate", level: 6, xp: 1202, streak: 13 },
-    { name: "@secretadmirer", level: 6, xp: 998, streak: 9 },
-  ],
-  events: [
-    "18:03 — mood shifted to naughty 😉",
-    "17:56 — sent a sexy compliment",
-    "17:31 — shared a voice tease",
-    "17:02 — initiated a flirty challenge",
-    "16:45 — exchanged virtual kisses",
-  ],
+  lisaMoodLabel: params.get("lisa_mood_label") || "",
 };
 
 function personalityLabel(value) {
@@ -430,52 +414,71 @@ function renderList(id, items, formatter) {
   });
 }
 
-function applyData() {
-  const displayName = profile.customName || profile.name;
-
-  setText("display-name", displayName);
-  setText("personality", personalityLabel(profile.personalityRaw));
-
-  setText("mood-key", prototype.lisaState.moodKey);
-  setText("mood-updated", prototype.lisaState.updatedAt);
-  setText("checkin-status", prototype.lisaState.checkin);
-
-  setText("replies-7d", prototype.activity.replies7d);
-  setBar("voice-bar", "voice-pct", prototype.activity.voicePct);
-  setBar("nudes-bar", "nudes-pct", prototype.activity.nudesPct);
-  setBar("media-bar", "media-pct", prototype.activity.mediaPct);
-  
-  // New bars for liberal stats
-  const kissesBar = document.getElementById("kisses-bar");
-  const cuddlesBar = document.getElementById("cuddles-bar");
-  if (kissesBar) kissesBar.style.width = prototype.activity.kissesPct + "%";
-  setText("kisses-pct", prototype.activity.kissesPct + "%");
-  if (cuddlesBar) cuddlesBar.style.width = prototype.activity.cuddlesPct + "%";
-  setText("cuddles-pct", prototype.activity.cuddlesPct + "%");
-
-  setText("tracked-users", prototype.memory.trackedUsers);
-  setText("avg-depth", prototype.memory.avgDepth);
-  setText("summary-updated", prototype.memory.summaryUpdated);
-  setText("top-topic", prototype.memory.topTopic);
-
-  renderList("top-users", prototype.topUsers, u => `${u.name} — lvl ${u.level}, ${u.xp} xp, streak ${u.streak} days of passion`);
-  renderList("events", prototype.events, e => e);
-
-  setText("summary", `Hey everyone! This is my public stats page. I'm Lisa, your virtual GF, sharing all my flirty details. Loaded with love and telemetry 💕`);
-  setText("status", "Synced & Sexy (Public)");
+function formatTimestamp(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
-document.getElementById("refresh-btn").addEventListener("click", applyData);
+function applyProfile() {
+  const displayName = profile.customName || profile.name;
+  setText("display-name", displayName);
+  setText("personality", personalityLabel(profile.personalityRaw));
+}
+
+function applyApiData(data) {
+  const ls = data.lisa_state || {};
+  setText("mood-key", ls.mood_key || "unknown");
+  setText("mood-updated", formatTimestamp(ls.updated_at));
+  setText("checkin-status", ls.checkin_status || "—");
+
+  const act = data.activity || {};
+  setText("replies-7d", act.replies_7d || 0);
+  setBar("voice-bar", "voice-pct", act.voice_pct || 0);
+  setBar("nudes-bar", "nudes-pct", act.nudes_pct || 0);
+  setBar("media-bar", "media-pct", act.media_pct || 0);
+
+  const mem = data.memory || {};
+  setText("tracked-users", mem.tracked_users || 0);
+  setText("avg-depth", mem.avg_depth || 0);
+  setText("summary-updated", formatTimestamp(mem.summary_updated));
+  setText("top-topic", mem.top_topic || "—");
+
+  renderList("top-users", data.top_users || [], u =>
+    `${u.name} — lvl ${u.level}, ${u.xp} xp, streak ${u.streak}d`
+  );
+  renderList("events", data.events || [], e => e);
+
+  setText("status", "SYNCED // LIVE");
+  setText("error-msg", "");
+}
+
+async function fetchData() {
+  setText("status", "SYNCING...");
+  try {
+    const resp = await fetch(API_BASE + "/api/lisa/overview");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    applyApiData(data);
+  } catch (err) {
+    setText("status", "OFFLINE // CACHED");
+    setText("error-msg", "api unreachable: " + err.message);
+  }
+}
+
+applyProfile();
+fetchData();
+
+document.getElementById("refresh-btn").addEventListener("click", fetchData);
 document.getElementById("copy-link-btn").addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(window.location.href);
-    setText("status", "Link Shared 💋");
+    setText("status", "LINK SHARED 💋");
   } catch (e) {
-    setText("status", "Share Failed 😔");
+    setText("status", "SHARE FAILED");
   }
 });
-
-applyData();
 </script>
 </body>
 </html>
