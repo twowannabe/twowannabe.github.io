@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aitelka Pip-Boy</title>
+
+<style>
+:root {
+  --bg: #030b03;
+  --line: #36ff74;
+  --line-soft: #1c8e41;
+  --text: #b2ffc8;
+  --dim: #65c783;
+  --warn: #dcff7a;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  font-family: "Courier New", monospace;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 15%, #0d2712 0%, transparent 42%),
+    radial-gradient(circle at 85% 80%, #0a1f0f 0%, transparent 48%),
+    var(--bg);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 8, 0, 0.76);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+
+.popup {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: 95vh;
+  overflow: auto;
+  border: 2px solid var(--line-soft);
+  background: linear-gradient(180deg, #071607 0%, #040b04 100%);
+  box-shadow:
+    0 0 0 1px #0f2f16,
+    0 0 24px rgba(54, 255, 116, 0.2),
+    inset 0 0 24px rgba(54, 255, 116, 0.08);
+}
+
+.popup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(54, 255, 116, 0.08) 0,
+    rgba(54, 255, 116, 0.08) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  opacity: 0.28;
+  mix-blend-mode: screen;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 10px 14px;
+  background: #071a09;
+  color: var(--dim);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.brand { color: var(--line); font-weight: bold; }
+.tabs { display: flex; gap: 8px; }
+.tab { border: 1px solid #175728; padding: 3px 8px; }
+.tab.active { background: var(--line); color: #04250d; border-color: var(--line); }
+
+.content {
+  position: relative;
+  z-index: 2;
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.headline {
+  border: 1px solid #1a542a;
+  background: rgba(8, 22, 10, 0.55);
+  padding: 14px;
+}
+
+h2 {
+  margin: 0;
+  color: var(--line);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 18px;
+}
+
+.status {
+  display: inline-block;
+  margin-top: 8px;
+  border: 1px solid #186330;
+  padding: 2px 8px;
+  color: var(--warn);
+  font-size: 12px;
+}
+
+.summary { margin: 10px 0 0; line-height: 1.5; font-size: 14px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.panel {
+  border: 1px solid #195129;
+  background: rgba(6, 16, 8, 0.65);
+  padding: 10px;
+}
+
+.panel-title {
+  color: var(--dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.kv span:last-child { color: var(--line); }
+
+.row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.bar {
+  flex: 1;
+  height: 10px;
+  border: 1px solid #1d6231;
+  background: #071807;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #1fa84d, #53ff89);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+.list li {
+  padding: 4px 0;
+  border-bottom: 1px dashed #164727;
+}
+.list li:last-child { border-bottom: none; }
+
+.buttons {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 14px;
+  border: 1px solid #1f6532;
+  background: #071807;
+  color: var(--line);
+  padding: 11px 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--line);
+  box-shadow: 0 0 10px rgba(54, 255, 116, 0.2), inset 0 0 8px rgba(54, 255, 116, 0.12);
+}
+
+.accept {
+  background: var(--line);
+  color: #04220c;
+  border-color: var(--line);
+  font-weight: bold;
+}
+
+@media (max-width: 760px) {
+  .tabs { display: none; }
+  .grid { grid-template-columns: 1fr; }
+  .buttons { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+<div class="overlay">
+  <div class="popup" role="dialog" aria-labelledby="profile-title" aria-modal="true">
+    <div class="topbar">
+      <span class="brand">Aitelka Vault Terminal</span>
+      <div class="tabs">
+        <span class="tab">STAT</span>
+        <span class="tab active">DATA</span>
+        <span class="tab">MAP</span>
+      </div>
+      <span id="build">v.111.42</span>
+    </div>
+
+    <div class="content">
+      <div class="headline">
+        <h2 id="profile-title">Aitelka Profile Snapshot</h2>
+        <span class="status" id="status">Prototype Mode</span>
+        <p class="summary" id="summary">Loading profile and local telemetry...</p>
+      </div>
+
+      <div class="grid">
+        <section class="panel">
+          <div class="panel-title">Avatar Settings</div>
+          <div class="kv"><span>Display Name</span><span id="display-name">-</span></div>
+          <div class="kv"><span>Level / XP</span><span id="level-xp">-</span></div>
+          <div class="kv"><span>Aitelka Mood</span><span id="lisa-mood">-</span></div>
+          <div class="kv"><span>Personality</span><span id="personality">-</span></div>
+          <div class="kv"><span>Voice Replies</span><span id="voice-enabled">-</span></div>
+          <div class="kv"><span>Write First</span><span id="write-first">-</span></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Global Lisa State (lisa_state)</div>
+          <div class="kv"><span>Current Mood Key</span><span id="mood-key">playful</span></div>
+          <div class="kv"><span>Updated At</span><span id="mood-updated">-</span></div>
+          <div class="kv"><span>Check-in Status</span><span id="checkin-status">active</span></div>
+          <div class="kv"><span>Scheduler</span><span>job_queue</span></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Activity (askgbt_logs)</div>
+          <div class="kv"><span>Total Replies (7d)</span><span id="replies-7d">-</span></div>
+          <div class="row"><span>Voice</span><div class="bar"><i id="voice-bar" style="width:0%"></i></div><span id="voice-pct">0%</span></div>
+          <div class="row"><span>Nudes</span><div class="bar"><i id="nudes-bar" style="width:0%"></i></div><span id="nudes-pct">0%</span></div>
+          <div class="row"><span>Media</span><div class="bar"><i id="media-bar" style="width:0%"></i></div><span id="media-pct">0%</span></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Memory (user_memory)</div>
+          <div class="kv"><span>Tracked Users</span><span id="tracked-users">-</span></div>
+          <div class="kv"><span>Avg Message Depth</span><span id="avg-depth">-</span></div>
+          <div class="kv"><span>Last Summary Refresh</span><span id="summary-updated">-</span></div>
+          <div class="kv"><span>Top Topic</span><span id="top-topic">relationship</span></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Top Users (user_state)</div>
+          <ul class="list" id="top-users"></ul>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Recent Events</div>
+          <ul class="list" id="events"></ul>
+        </section>
+      </div>
+
+      <div class="buttons">
+        <button class="accept" id="refresh-btn">Refresh</button>
+        <button class="manage" id="copy-link-btn">Copy Link</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const profile = {
+  name: params.get("name") || "unknown",
+  customName: params.get("custom_name") || "",
+  level: parseInt(params.get("level") || "0", 10),
+  xp: parseInt(params.get("xp") || "0", 10),
+  title: params.get("title") || "",
+  doNotWriteFirst: params.get("do_not_write_first") === "1",
+  voiceEnabled: params.get("voice_enabled") !== "0",
+  personalityRaw: params.get("personality") || "",
+  lisaMoodLabel: params.get("lisa_mood_label") || "неизвестно",
+};
+
+// Prototype source until API is wired.
+const prototype = {
+  lisaState: {
+    moodKey: "flirty",
+    updatedAt: "2026-02-16 17:42",
+    checkin: "active",
+  },
+  activity: {
+    replies7d: 842,
+    voicePct: 34,
+    nudesPct: 12,
+    mediaPct: 27,
+  },
+  memory: {
+    trackedUsers: 119,
+    avgDepth: 28,
+    summaryUpdated: "2026-02-16 18:00",
+    topTopic: "flirt + support",
+  },
+  topUsers: [
+    { name: "@neo", level: 7, xp: 1734, streak: 24 },
+    { name: "@trinity", level: 6, xp: 1202, streak: 13 },
+    { name: "@morpheus", level: 6, xp: 998, streak: 9 },
+  ],
+  events: [
+    "18:03 — mood rotated to flirty",
+    "17:56 — daily compliment sent",
+    "17:31 — voice reply generated",
+    "17:02 — challenge delivered",
+  ],
+};
+
+function personalityLabel(value) {
+  const v = (value || "").toLowerCase();
+  if (!v) return "default";
+  if (v.includes("неж")) return "tender";
+  if (v.includes("подруг") || v.includes("bestie")) return "bestie";
+  if (v.includes("пошл") || v.includes("дерз")) return "flirty";
+  return "custom";
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = String(value);
+}
+
+function setBar(id, pctId, value) {
+  const clamped = Math.max(0, Math.min(100, value));
+  const bar = document.getElementById(id);
+  if (bar) bar.style.width = clamped + "%";
+  setText(pctId, clamped + "%");
+}
+
+function renderList(id, items, formatter) {
+  const ul = document.getElementById(id);
+  if (!ul) return;
+  ul.innerHTML = "";
+  items.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = formatter(item);
+    ul.appendChild(li);
+  });
+}
+
+function applyData() {
+  const displayName = profile.customName || profile.name;
+
+  setText("display-name", displayName);
+  setText("level-xp", profile.level > 0 ? `lvl ${profile.level} (${profile.title || "no title"}), ${profile.xp} xp` : "n/a");
+  setText("lisa-mood", profile.lisaMoodLabel);
+  setText("personality", personalityLabel(profile.personalityRaw));
+  setText("voice-enabled", profile.voiceEnabled ? "enabled" : "disabled");
+  setText("write-first", profile.doNotWriteFirst ? "disabled" : "enabled");
+
+  setText("mood-key", prototype.lisaState.moodKey);
+  setText("mood-updated", prototype.lisaState.updatedAt);
+  setText("checkin-status", prototype.lisaState.checkin);
+
+  setText("replies-7d", prototype.activity.replies7d);
+  setBar("voice-bar", "voice-pct", prototype.activity.voicePct);
+  setBar("nudes-bar", "nudes-pct", prototype.activity.nudesPct);
+  setBar("media-bar", "media-pct", prototype.activity.mediaPct);
+
+  setText("tracked-users", prototype.memory.trackedUsers);
+  setText("avg-depth", prototype.memory.avgDepth);
+  setText("summary-updated", prototype.memory.summaryUpdated);
+  setText("top-topic", prototype.memory.topTopic);
+
+  renderList("top-users", prototype.topUsers, u => `${u.name} — lvl ${u.level}, ${u.xp} xp, streak ${u.streak}`);
+  renderList("events", prototype.events, e => e);
+
+  setText("summary", `${displayName}, profile loaded. This screen is a Pip-Boy prototype wired to query params and mock DB telemetry.`);
+  setText("status", "Synced (Prototype)");
+}
+
+document.getElementById("refresh-btn").addEventListener("click", applyData);
+document.getElementById("copy-link-btn").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    setText("status", "Link Copied");
+  } catch (e) {
+    setText("status", "Copy Failed");
+  }
+});
+
+applyData();
+</script>
+</body>
+</html>
+
